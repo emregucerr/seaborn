@@ -1090,6 +1090,13 @@ class FacetGrid(Grid):
         """
         return self._axes_dict
 
+    def _flatten_multiindex(self, column):
+        """Helper method to flatten a MultiIndex to a single string."""
+        if not isinstance(column, tuple):
+            return column
+        else:
+            return '_'.join(str(level) for level in column)
+
     # ------ Private properties, that require some computation to get
 
     @property
@@ -1431,6 +1438,11 @@ class PairGrid(Grid):
     def map_diag(self, func, **kwargs):
         """Plot with a univariate function on each diagonal subplot.
 
+        if isinstance(self.data.columns, pd.MultiIndex):
+            diag_vars_flattened = [self._flatten_multiindex(column) for column in self.diag_vars]
+        else:
+            diag_vars_flattened = self.diag_vars
+
         Parameters
         ----------
         func : callable plotting function
@@ -1479,7 +1491,9 @@ class PairGrid(Grid):
             return self._map_diag_iter_hue(func, **kwargs)
 
         # Loop over diagonal variables and axes, making one plot in each
-        for var, ax in zip(self.diag_vars, self.diag_axes):
+        for var, ax in zip(diag_vars_flattened, self.diag_axes):
+            flat_var = self._flatten_multiindex(var)
+            vector = self.data[flat_var]
 
             plot_kwargs = kwargs.copy()
             if str(func.__module__).startswith("seaborn"):
