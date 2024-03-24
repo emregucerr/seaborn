@@ -845,6 +845,13 @@ class Plot:
         plotter._data = common
         plotter._layers = layers
 
+        # Check for empty facets and remove them from the ax_dicts
+        # before further processing.
+        for key in list(ax_dicts.keys()):
+            ax_dict = ax_dicts[key]
+            if ax_dict["data"].empty:  # If this facet has no data
+                del ax_dicts[key]  # Remove the facet from the dictionary
+
         # Process the data for each layer and add matplotlib artists
         for layer in layers:
             plotter._plot_layer(self, layer)
