@@ -965,7 +965,7 @@ class FacetGrid(Grid):
         if row_template is None:
             row_template = "{row_var} = {row_name}"
         if col_template is None:
-            col_template = "{col_var} = {col_name}"
+            col_template = "{col_var} = {col_name}\n"
         if template is None:
             if self._row_var is None:
                 template = col_template

@@ -15,6 +15,7 @@ except ImportError:
 
 import matplotlib as mpl
 from matplotlib.collections import PatchCollection
+from matplotlib.ticker import FormatStrFormatter
 import matplotlib.patches as Patches
 import matplotlib.pyplot as plt
 
@@ -3146,6 +3147,7 @@ def catplot(
         for ax in g.axes.flat:
             g._update_legend_data(ax)
             ax.legend_ = None
+            ax.xaxis.set_major_formatter(FormatStrFormatter('%.2f'))
 
         if legend and (hue is not None) and (hue not in [x, row, col]):
             g.add_legend(title=hue, label_order=hue_order)
