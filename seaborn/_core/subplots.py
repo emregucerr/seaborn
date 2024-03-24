@@ -183,7 +183,7 @@ class Subplots:
             hasattr(mpl.figure, "SubFigure")  # Added in mpl 3.4
             and isinstance(target, mpl.figure.SubFigure)
         ):
-            figure = target.figure
+            figure = target  # Treat SubFigure as an independent figure
         elif isinstance(target, mpl.figure.Figure):
             figure = target
         else:
