@@ -347,6 +347,13 @@ class ContinuousBase(Scale):
             else:
                 vmin, vmax = new.norm
             vmin, vmax = axis.convert_units((vmin, vmax))
+            
+            # Add a check to convert boolean values to integers before normalization
+            if isinstance(vmin, bool):
+                vmin = int(vmin)
+            if isinstance(vmax, bool):
+                vmax = int(vmax)
+                
             a = forward(vmin)
             b = forward(vmax) - forward(vmin)
 
