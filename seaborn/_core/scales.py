@@ -67,6 +67,7 @@ class Scale:
         self._tick_params = None
         self._label_params = None
         self._legend = None
+        self._formatter_offset = None  # Initialize the formatter offset
 
     def tick(self):
         raise NotImplementedError()
@@ -294,7 +295,11 @@ class Nominal(Scale):
     def _get_formatter(self, locator, formatter):
 
         if formatter is not None:
-            return formatter
+            major_formatter = formatter
+            # Capture the offset from the formatter for use in legend labels
+            if isinstance(major_formatter, ScalarFormatter):
+                self._formatter_offset = major_formatter.get_offset()
+            return major_formatter
 
         formatter = mpl.category.StrCategoryFormatter({})
 
@@ -374,6 +379,23 @@ class ContinuousBase(Scale):
         # Could add a Scale parameter, or perhaps Scale.suppress()?
         # Are there other useful parameters that would be in Scale.legend()
         # besides allowing Scale.legend(False)?
+        # Check for the offset in the scale's formatter
+        offset_value = None
+        major_formatter = self._matplotlib_scale.get_major_formatter()
+        if hasattr(major_formatter, '_offset'):
+            offset_value = major_formatter._offset
+        elif hasattr(self, '_formatter_offset'):
+            offset_value = self._formatter_offset
+
+        if offset_value not in (None, 0):
+            # Modify the legend title to include the offset
+            formatter_offset_str = f" (Offset: {offset_value:.0e})"
+            if self._legend[0]:
+                self._legend = (
+                    self._legend[0],
+                    [f"{label}{formatter_offset_str}" for label in self._legend[1]]
+                )
+
         if prop.legend:
             axis.set_view_interval(vmin, vmax)
             locs = axis.major.locator()
