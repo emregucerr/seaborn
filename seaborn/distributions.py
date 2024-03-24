@@ -361,7 +361,17 @@ class _DistributionPlotter(VectorPlotter):
                 continue
 
             if log_scale:
+                # Transform support to log scale
                 support = np.power(10, support)
+
+                # Calculate the widths in log-space to avoid overlapping bars
+                log_edges = np.log10(edges)
+                log_bin_edges = np.log10(edges + widths)
+                log_widths = log_bin_edges - log_edges
+                
+                # Transform widths back from log-space
+                widths = np.power(10, log_widths) - np.power(10, log_edges)
+                edges = np.power(10, log_edges)
 
             # Apply a scaling factor so that the integral over all subsets is 1
             if common_norm:
