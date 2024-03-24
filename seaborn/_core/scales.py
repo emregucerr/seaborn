@@ -186,12 +186,10 @@ class Nominal(Scale):
         mpl_scale = CatScale(data.name)
         if axis is None:
             axis = PseudoAxis(mpl_scale)
-
-            # TODO Currently just used in non-Coordinate contexts, but should
-            # we use this to (A) set the padding we want for categorial plots
-            # and (B) allow the values parameter for a Coordinate to set xlim/ylim
             axis.set_view_interval(0, len(units_seed) - 1)
-
+        # Call the new configure axis method when the axis is not None
+        if axis is not None:
+            self._configure_axis(axis, units_seed)
         new._matplotlib_scale = mpl_scale
 
         # TODO array cast necessary to handle float/int mixture, which we need
@@ -293,6 +291,23 @@ class Nominal(Scale):
         formatter = mpl.category.StrCategoryFormatter({})
 
         return formatter
+
+    def _configure_axis(self, axis: Axis, units_seed: Series):
+        # Add an invisible artist to configure the axis range
+        invisible_artist = Artist()
+        invisible_artist.set_visible(False)
+        invisible_artist.sticky_edges.x[:] = [-0.5, len(units_seed) - 0.5]
+        invisible_artist.sticky_edges.y[:] = [-0.5, len(units_seed) - 0.5]
+        axis.add_artist(invisible_artist)
+        axis.margins(x=0, y=0)
+
+        # Turn off the grid and invert y-axis based on the _priority
+        # _priority == 3 indicates it is used for a y-axis
+        if self._priority == 3:
+            axis.yaxis.grid(False)
+            axis.invert_yaxis()
+        else:
+            axis.xaxis.grid(False)
 
 
 @dataclass
