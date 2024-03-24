@@ -25,7 +25,7 @@ from seaborn._marks.base import Mark
 from seaborn._stats.base import Stat
 from seaborn._core.data import PlotData
 from seaborn._core.moves import Move
-from seaborn._core.scales import Scale
+from seaborn._core.scales import Scale, Nominal
 from seaborn._core.subplots import Subplots
 from seaborn._core.groupby import GroupBy
 from seaborn._core.properties import PROPERTIES, Property
@@ -1643,6 +1643,11 @@ class Plotter:
                     if isinstance(b, str):
                         hi = cast(float, hi) + 0.5
                     ax.set(**{f"{axis}lim": (lo, hi)})
+
+                # Handle axis configuration for Nominal scales
+                scale = self._scales.get(axis_key)
+                if isinstance(scale, Nominal):
+                    scale._configure_axis(ax, p._data[axis_key])
 
         engine_default = None if p._target is not None else "tight"
         layout_engine = p._layout_spec.get("engine", engine_default)
