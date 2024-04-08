@@ -181,9 +181,11 @@ class Hist(Stat):
         return pd.DataFrame({orient: center, "count": hist, "space": width})
 
     def _normalize(self, data):
-
         hist = data["count"]
-        if self.stat == "probability" or self.stat == "proportion":
+        if self.stat == "density":
+            density = hist / (hist.sum() * np.diff(data["edges"]).mean())
+            return data.assign(density=density)
+        elif self.stat == "probability" or self.stat == "proportion":
             hist = hist.astype(float) / hist.sum()
         elif self.stat == "percent":
             hist = hist.astype(float) / hist.sum() * 100
